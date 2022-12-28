@@ -140,7 +140,7 @@ public class PathAcceptanceTest extends AcceptanceTest {
     @DisplayName("예외발생 - 존재하지 않은 도착역으로 최단 경로 조회")
     @Test
     void makeExceptionWhenTargetStationIsNotExist() {
-        ExtractableResponse<Response> response = PathRestAssured.지하철_경로_조회_요청(10L, 교대역.getId());
+        ExtractableResponse<Response> response = PathRestAssured.지하철_경로_조회_요청(성인회원, 10L, 교대역.getId());
         지하철_최단_경로_조회_실패됨(response);
     }
 
