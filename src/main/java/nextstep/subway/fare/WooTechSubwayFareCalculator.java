@@ -3,59 +3,48 @@ package nextstep.subway.fare;
 import nextstep.subway.auth.domain.LoginMember;
 import nextstep.subway.common.ErrorCode;
 
-import static nextstep.subway.fare.FareConstants.ADD_FARE;
-import static nextstep.subway.fare.FareConstants.ADOLESCENT_AGE_END_SEPARATOR;
-import static nextstep.subway.fare.FareConstants.CHILD_ADOLESCENT_AGE_BOUNDARY;
-import static nextstep.subway.fare.FareConstants.CHILD_AGE_START_SEPARATOR;
-import static nextstep.subway.fare.FareConstants.DISCOUNT_FARE;
-import static nextstep.subway.fare.FareConstants.DISCOUNT_RATE_ADOLESCENT;
-import static nextstep.subway.fare.FareConstants.DISCOUNT_RATE_CHILDREN;
-import static nextstep.subway.fare.FareConstants.FIRST_FARE_SECTION_DELIMITER;
-import static nextstep.subway.fare.FareConstants.FIRST_FARE_SECTION_PER_DISTANCE;
-import static nextstep.subway.fare.FareConstants.SECOND_FARE_SECTION_DELIMITER;
-import static nextstep.subway.fare.FareConstants.SECOND_FARE_SECTION_PER_DISTANCE;
+import static nextstep.subway.fare.FareConstants.*;
 
 public class WooTechSubwayFareCalculator implements FareCalculator{
-
-    private long fare;
-
-    public WooTechSubwayFareCalculator(long fare) {
-        this.fare = fare;
-    }
+    public WooTechSubwayFareCalculator() {}
 
     @Override
-    public long fareCalculate(int distance, LoginMember member) {
-        calculateFareByDistanceProportional(distance);
-        calculateDiscount(member);
+    public long fareCalculate(long fare, int distance, LoginMember member) {
+        fare += calculateFareByDistanceProportional(distance);
+        fare = calculateDiscount(member, fare);
         return fare;
     }
 
-    public void calculateFareByDistanceProportional(int distance) {
-        if (isBelongToFirstFareSection(distance)) {
-            fare += calculateOverFareWhenFirstFareSection(distance - FIRST_FARE_SECTION_DELIMITER);
-        }
+    public long calculateFareByDistanceProportional(int distance) {
         if (isBelongToSecondFareSection(distance)) {
-            fare += calculateOverFareWhenSecondFareSection(distance - SECOND_FARE_SECTION_DELIMITER);
+            return calculateFirstFareStationByDistanceProportional(
+                calculateOverFareWhenSecondFareSection(distance - SECOND_FARE_SECTION_DELIMITER)
+                ,  SECOND_FARE_SECTION_DELIMITER);
         }
+        if (isBelongToFirstFareSection(distance)) {
+            return  calculateOverFareWhenFirstFareSection(distance - FIRST_FARE_SECTION_DELIMITER);
+        }
+        return ZERO_FARE;
     }
 
-    public void calculateDiscount(LoginMember member) {
+    public long calculateFirstFareStationByDistanceProportional(long fare, int distance) {
+        return  fare + calculateOverFareWhenFirstFareSection(distance - FIRST_FARE_SECTION_DELIMITER);
+    }
+
+    public long calculateDiscount(LoginMember member, long fare) {
         if (isAdolescent(member)) {
-            this.fare -= DISCOUNT_FARE;
-            this.fare -= this.fare * DISCOUNT_RATE_ADOLESCENT;
+            fare -= DISCOUNT_FARE;
+            fare -= fare * DISCOUNT_RATE_ADOLESCENT;
             checkValidation(fare);
-            return;
+            return fare;
         }
         if (isChildren(member)) {
-            this.fare -= DISCOUNT_FARE;
-            this.fare -= this.fare * DISCOUNT_RATE_CHILDREN;
+            fare -= DISCOUNT_FARE;
+            fare -= fare * DISCOUNT_RATE_CHILDREN;
             checkValidation(fare);
-            return;
+            return fare;
         }
-    }
-
-    public long currentFare() {
-        return this.fare;
+        return fare;
     }
 
     private boolean isBelongToSecondFareSection(int distance) {

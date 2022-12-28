@@ -2,6 +2,8 @@ package nextstep.subway.path.application;
 
 import nextstep.subway.auth.domain.LoginMember;
 import nextstep.subway.common.ErrorCode;
+import nextstep.subway.fare.FareCalculator;
+import nextstep.subway.fare.WooTechSubwayFareCalculator;
 import nextstep.subway.line.domain.Line;
 import nextstep.subway.line.domain.LineRepository;
 import nextstep.subway.line.domain.Sections;
@@ -55,12 +57,14 @@ public class PathService {
 
     private long calculateFare(Sections sections, List<Station> stations, int distance, LoginMember member) {
         List<Line> lines = sections.findLines(stations);
-        Fare fare = Fare.fromBaseFare(
+        FareCalculator fareCalculator = new WooTechSubwayFareCalculator();
+        return fareCalculator.fareCalculate(
+                Fare.fromBaseFare(
                 lines.stream()
                 .map(Line::getAddFare)
                 .max(Comparator.comparing(eachLineFare -> eachLineFare))
-                .orElse(Fare.from().findFare()));
-        return fare.currentFare(distance, member);
+                .orElse(Fare.from().findFare())).currentFare()
+                , distance, member);
     }
 
 }

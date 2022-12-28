@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FareTest {
 
-    private WooTechSubwayFareCalculator fareCalculator = new WooTechSubwayFareCalculator(1250);
+    private WooTechSubwayFareCalculator fareCalculator = new WooTechSubwayFareCalculator();
 
     @DisplayName("요금 객체의 Default_운임(기본요금)은 1250원이다.")
     @Test
@@ -26,10 +26,9 @@ class FareTest {
 
     @DisplayName("거리비례제를 적용하여 요금을 계산한다.")
     @ParameterizedTest
-    @CsvSource(value = {"11:1350", "59:2250"}, delimiter = ':')
+    @CsvSource(value = {"11:100", "59:1000"}, delimiter = ':')
     void calculateFareByDistanceProportional(int distance, long expectFare) {
-        fareCalculator.calculateFareByDistanceProportional(distance);
-        assertThat(fareCalculator.currentFare()).isEqualTo(expectFare);
+        assertThat(fareCalculator.calculateFareByDistanceProportional(distance)).isEqualTo(expectFare);
     }
 
     @DisplayName("노선별 추가 요금을 적용하여 요금을 계산한다.")
@@ -45,9 +44,7 @@ class FareTest {
     @CsvSource(value = {"15:720", "6:450"}, delimiter = ':')
     void calculateDiscount(int age, long expectFare) {
         LoginMember member = new LoginMember(1L, "a@gmail.com", age);
-
-        fareCalculator.calculateDiscount(member);
-        assertThat(fareCalculator.currentFare()).isEqualTo(expectFare);
+        assertThat(fareCalculator.calculateDiscount(member, 1250)).isEqualTo(expectFare);
     }
 
     @DisplayName("요금이 음수이면 예외가 발생한다.")

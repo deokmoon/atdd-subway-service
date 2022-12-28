@@ -42,10 +42,10 @@ public class Fare {
         return this.fare;
     }
 
-    public long currentFare(int distance, LoginMember member) {
-        WooTechSubwayFareCalculator wooTechSubwayFareCalculator = new WooTechSubwayFareCalculator(this.fare);
-        return wooTechSubwayFareCalculator.fareCalculate(distance, member);
-    }
+//    public long currentFare(int distance, LoginMember member) {
+//        WooTechSubwayFareCalculator wooTechSubwayFareCalculator = new WooTechSubwayFareCalculator(this.fare);
+//        return wooTechSubwayFareCalculator.fareCalculate(distance, member);
+//    }
 
     public long findFare() {
         return this.fare;
